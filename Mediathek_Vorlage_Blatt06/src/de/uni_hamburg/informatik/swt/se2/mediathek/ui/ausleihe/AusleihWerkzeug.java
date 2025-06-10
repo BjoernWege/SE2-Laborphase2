@@ -2,6 +2,7 @@ package de.uni_hamburg.informatik.swt.se2.mediathek.ui.ausleihe;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -203,22 +204,66 @@ public class AusleihWerkzeug
     }
 
     /**
-     * Überprüft, ob die selektierten Medien ausgeleihen werden können und ob
-     * ein Kunde selektiert ist, an den ausgeliehen werden könnte.
+     * Wandelt ein einzelnes Medium in eine Liste mit genau einem Element um.
      * 
-     * @return true, wenn ausleihen möglich ist, sonst false.
+     * Diese Hilfsmethode wird verwendet, um einzelne Medien in Methoden
+     * aufzurufen, die eine Liste von Medien erwarten.
+     * 
+     * @param medium Das einzelne Medium, das in eine Liste verpackt wird.
+     * 
+     * @require medium != null
+     * @ensure result != null
+     * @ensure result.size() == 1
+     * @ensure result.get(0).equals(medium)
+     * 
+     * @param medium das Medium, das als Liste zurückgegeben werden soll
+     * @return eine Liste mit genau einem Element, dem übergebenen Medium
+     */
+    private List<Medium> alsListe(Medium medium)
+    {
+        assert medium != null : "Vorbedingung verletzt: medium != null";
+        return Collections.singletonList(medium);
+    }
+
+    /**
+     * Überprüft, ob die selektierten Medien ausgeliehen werden können und ob
+     * ein Kunde selektiert ist, an den ausgeliehen werden darf.
+     * 
+     * Dabei wird beachtet:
+     * - Es muss ein Kunde und mindestens ein Medium ausgewählt sein.
+     * - Alle ausgewählten Medien dürfen nicht bereits verliehen sein.
+     * - Wenn ein Medium vorgemerkt ist, darf nur der erste Vormerker das Medium ausleihen.
+     * 
+     * @return true, wenn alle Bedingungen erfüllt sind, sonst false.
+     * 
+     * @require _kundenAuflisterWerkzeug != null
+     * @require _medienAuflisterWerkzeug != null
+     * @ensure result == true <==> alle Bedingungen sind erfüllt
      */
     private boolean istAusleihenMoeglich()
     {
         List<Medium> medien = _medienAuflisterWerkzeug.getSelectedMedien();
         Kunde kunde = _kundenAuflisterWerkzeug.getSelectedKunde();
-        // TODO für Aufgabenblatt 6 (nicht löschen): So ändern, dass vorgemerkte
-        // Medien nur vom ersten Vormerker ausgeliehen werden können, gemäß
-        // Anforderung c).
-        boolean ausleiheMoeglich = (kunde != null) && !medien.isEmpty()
-                && _verleihService.sindAlleNichtVerliehen(medien);
 
-        return ausleiheMoeglich;
+        assert _kundenAuflisterWerkzeug != null : "Vorbedingung verletzt: _kundenAuflisterWerkzeug != null";
+        assert _medienAuflisterWerkzeug != null : "Vorbedingung verletzt: _medienAuflisterWerkzeug != null";
+
+        if (kunde == null || medien.isEmpty())
+        {
+            return false;
+        }
+
+        // VerleihService erwartet eine Liste von Medien,
+        // daher wird jedes einzelne Medium hier als Liste mit nur diesem Medium übergeben.
+        for (Medium medium : medien)
+        {
+            if (!_verleihService.istVerleihenMoeglich(kunde, alsListe(medium)))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

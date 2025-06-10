@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.uni_hamburg.informatik.swt.se2.mediathek.entitaeten.Kunde;
 import de.uni_hamburg.informatik.swt.se2.mediathek.entitaeten.Verleihkarte;
+import de.uni_hamburg.informatik.swt.se2.mediathek.entitaeten.Vormerkung;
 import de.uni_hamburg.informatik.swt.se2.mediathek.entitaeten.medien.Medium;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.AbstractObservableService;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.kundenstamm.KundenstammService;
@@ -29,6 +30,13 @@ public class VerleihServiceImpl extends AbstractObservableService
      * die Angabe des Mediums möglich. Beispiel: _verleihkarten.get(medium)
      */
     private Map<Medium, Verleihkarte> _verleihkarten;
+
+    /**
+     * Diese Map speichert für jedes eingefügte Medium die dazugehörige
+     * Verleihkarte. Ein Zugriff auf die Verleihkarte ist dadurch leicht über
+     * die Angabe des Mediums möglich. Beispiel: _verleihkarten.get(medium)
+     */
+    private Map<Medium, Vormerkung> _vormerkungen;
 
     /**
      * Der Medienbestand.
@@ -64,6 +72,7 @@ public class VerleihServiceImpl extends AbstractObservableService
         assert medienbestand != null : "Vorbedingung verletzt: medienbestand  != null";
         assert initialBestand != null : "Vorbedingung verletzt: initialBestand  != null";
         _verleihkarten = erzeugeVerleihkartenBestand(initialBestand);
+        _vormerkungen = new HashMap<Medium, Vormerkung>();
         _kundenstamm = kundenstamm;
         _medienbestand = medienbestand;
         _protokollierer = new VerleihProtokollierer();
@@ -297,4 +306,63 @@ public class VerleihServiceImpl extends AbstractObservableService
         return result;
     }
 
+    // #############################################################
+
+    // yay! automatisch generierte Methoden!!!
+    @Override
+    public void merkeVor(Kunde kunde, Medium medium)
+    {
+        assert kundeImBestand(
+                kunde) : "Vorbedingung verletzt: kundeImBestand(kunde)";
+        assert istVormerkenMoeglich(kunde,
+                medium) : "Vorbedingung verletzt: istVormerkenMoeglich(kunde,medium)";
+
+        Vormerkung vormerkung = _vormerkungen.get(medium);
+
+        if (vormerkung == null)
+        {
+            vormerkung = new Vormerkung(kunde, medium);
+        }
+        vormerkung.kundeHinzufuegen(kunde);
+
+        _vormerkungen.put(medium, vormerkung);
+
+    }
+
+    /**
+    * Prüft, ob ein Kunde ein Medium vormerken darf.
+    */
+    @Override
+    public boolean istVormerkenMoeglich(Kunde kunde, Medium medium)
+    {
+        //if (!istVerliehen(medium))
+        //     return false;
+
+        if (istVerliehenAn(kunde, medium)) return false;
+
+        Vormerkung v = _vormerkungen.get(medium);
+        if (v == null) return true;
+
+        return !v.listeIstVoll() && !v.containsKunde(kunde);
+    }
+
+    /**
+     * Gibt die Liste der Kunden zurück, die das Medium vorgemerkt haben.
+     */
+    @Override
+    public List<Kunde> getVorgemerkteKunden(Medium medium)
+    {
+        Vormerkung v = _vormerkungen.get(medium);
+        return v == null ? new ArrayList<>() : v.getListeVonKunden();
+    }
+
+    /**
+    * Gibt zurück, ob ein Kunde das Medium schon vorgemerkt hat.
+    */
+    @Override
+    public boolean istSchonVorgemerkt(Kunde kunde, Medium medium)
+    {
+        Vormerkung v = _vormerkungen.get(medium);
+        return v != null && v.containsKunde(kunde);
+    }
 }

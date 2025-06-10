@@ -200,36 +200,78 @@ public class VormerkWerkzeug
     }
 
     /**
-     * Überprüft, ob ein Kunde selektiert ist und ob selektierte Medien für
-     * diesen Kunden vorgemerkt werden können.
+     * Überprüft, ob ein Kunde selektiert ist und ob die ausgewählten Medien
+     * für diesen Kunden vorgemerkt werden können.
+     * 
+     * Dabei wird geprüft:
+     * - Ein Kunde ist ausgewählt.
+     * - Mindestens ein Medium ist ausgewählt.
+     * - Für alle ausgewählten Medien darf der Kunde laut Geschäftslogik vorgemerkt werden.
      * 
      * @return true, wenn vormerken möglich ist, sonst false.
+     * 
+     * @require _kundenAuflisterWerkzeug != null
+     * @require _medienAuflisterWerkzeug != null
+     * @ensure result == true <==> alle Bedingungen sind erfüllt
      */
     private boolean istVormerkenMoeglich()
     {
         List<Medium> medien = _medienAuflisterWerkzeug.getSelectedMedien();
         Kunde kunde = _kundenAuflisterWerkzeug.getSelectedKunde();
+
         // TODO für Aufgabenblatt 6 (nicht löschen): Prüfung muss noch eingebaut
         // werden. Ist dies korrekt implementiert, wird der Vormerk-Button gemäß
         // der Anforderungen a), b), c) und e) aktiviert.
-        boolean vormerkenMoeglich = (kunde != null) && !medien.isEmpty();
 
-        return vormerkenMoeglich;
+        assert _kundenAuflisterWerkzeug != null : "Vorbedingung verletzt: _kundenAuflisterWerkzeug != null";
+        assert _medienAuflisterWerkzeug != null : "Vorbedingung verletzt: _medienAuflisterWerkzeug != null";
+
+        if (kunde == null || medien.isEmpty())
+        {
+            return false;
+        }
+
+        for (Medium medium : medien)
+        {
+            if (!_verleihService.istVormerkenMoeglich(kunde, medium))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * Merkt die ausgewählten Medien für einen Kunden vor. Diese Methode wird
-     * über einen Listener angestoßen, der reagiert, wenn der Benutzer den
-     * VormerkButton drückt.
+     * Merkt die ausgewählten Medien für den aktuell selektierten Kunden vor.
+     * Diese Methode wird über einen Listener angestoßen, wenn der Benutzer
+     * auf den Vormerk-Button klickt.
+     *
+     * Es werden nur solche Medien vorgemerkt, für die der Kunde laut Logik
+     * vorgemerkt werden darf (max. 3 Vormerker, nicht Entleiher, nicht doppelt).
+     *
+     * @require _kundenAuflisterWerkzeug.getSelectedKunde() != null
+     * @require !_medienAuflisterWerkzeug.getSelectedMedien().isEmpty()
      */
     private void merkeAusgewaehlteMedienVor()
     {
+        Kunde kunde = _kundenAuflisterWerkzeug.getSelectedKunde();
+        List<Medium> medien = _medienAuflisterWerkzeug.getSelectedMedien();
 
-        List<Medium> selectedMedien = _medienAuflisterWerkzeug
-            .getSelectedMedien();
-        Kunde selectedKunde = _kundenAuflisterWerkzeug.getSelectedKunde();
-        // TODO für Aufgabenblatt 6 (nicht löschen): Vormerken einbauen
+        assert kunde != null : "Vorbedingung verletzt: Kunde darf nicht null sein.";
+        assert !medien
+            .isEmpty() : "Vorbedingung verletzt: Medienliste darf nicht leer sein.";
 
+        for (Medium medium : medien)
+        {
+            if (_verleihService.istVormerkenMoeglich(kunde, medium))
+            {
+                _verleihService.merkeVor(kunde, medium);
+            }
+        }
+
+        // Aktualisiere Detailanzeigen nach erfolgreicher Vormerkung
+        _medienDetailAnzeigerWerkzeug.setMedien(medien);
+        _kundenDetailAnzeigerWerkzeug.setKunde(kunde);
     }
 
     /**
