@@ -88,31 +88,38 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
 
         for (Medium medium : medienListe)
         {
-        	// TODO für Aufgabenblatt 6 (nicht löschen): Die
+            // TODO für Aufgabenblatt 6 (nicht löschen): Die
             // VormerkMedienFormatierer müssen noch mit einem möglichen
             // Entleiher und möglichen Vormerkern ausgestattet werden.
             // Ist dies korrekt implementiert, erscheinen in der Vormerkansicht
             // die Namen des Entleihers und der möglichen 3 Vormerker.
-        	
+
             // Ermittle Entleiher, falls vorhanden
             Kunde entleiher = _verleihService.istVerliehen(medium)
                     ? _verleihService.getEntleiherFuer(medium)
                     : null;
 
             // Ermittle bis zu 3 Vormerker
-            List<Kunde> vorgemerkteKunden = _verleihService.getVorgemerkteKunden(medium);
-            Kunde vormerker1 = vorgemerkteKunden.size() > 0 ? vorgemerkteKunden.get(0) : null;
-            Kunde vormerker2 = vorgemerkteKunden.size() > 1 ? vorgemerkteKunden.get(1) : null;
-            Kunde vormerker3 = vorgemerkteKunden.size() > 2 ? vorgemerkteKunden.get(2) : null;
+            List<Kunde> vorgemerkteKunden = _verleihService
+                .getVorgemerkteKunden(medium);
+            Kunde vormerker1 = vorgemerkteKunden.size() > 0
+                    ? vorgemerkteKunden.get(0)
+                    : null;
+            Kunde vormerker2 = vorgemerkteKunden.size() > 1
+                    ? vorgemerkteKunden.get(1)
+                    : null;
+            Kunde vormerker3 = vorgemerkteKunden.size() > 2
+                    ? vorgemerkteKunden.get(2)
+                    : null;
 
             // Formatierer-Objekt erzeugen
-            medienFormatierer.add(new VormerkMedienFormatierer(
-                    medium, entleiher, vormerker1, vormerker2, vormerker3));
+            medienFormatierer.add(new VormerkMedienFormatierer(medium,
+                    entleiher, vormerker1, vormerker2, vormerker3));
         }
 
-        _ui.getMedienAuflisterTableModel().setMedien(medienFormatierer);
+        _ui.getMedienAuflisterTableModel()
+            .setMedien(medienFormatierer);
     }
-
 
     /**
      * Registiert die Aktion, die ausgeführt wird, wenn ein Medium ausgewählt

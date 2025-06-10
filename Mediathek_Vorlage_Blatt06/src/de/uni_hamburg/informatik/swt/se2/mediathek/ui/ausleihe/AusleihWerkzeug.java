@@ -1,9 +1,8 @@
 package de.uni_hamburg.informatik.swt.se2.mediathek.ui.ausleihe;
 
-import java.util.Collections;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -203,7 +202,7 @@ public class AusleihWerkzeug
             }
         });
     }
-    
+
     /**
      * Wandelt ein einzelnes Medium in eine Liste mit genau einem Element um.
      * 
@@ -220,7 +219,7 @@ public class AusleihWerkzeug
      * @param medium das Medium, das als Liste zurückgegeben werden soll
      * @return eine Liste mit genau einem Element, dem übergebenen Medium
      */
-    private List<Medium> alsListe(Medium medium) 
+    private List<Medium> alsListe(Medium medium)
     {
         assert medium != null : "Vorbedingung verletzt: medium != null";
         return Collections.singletonList(medium);
@@ -266,7 +265,6 @@ public class AusleihWerkzeug
 
         return true;
     }
-
 
     /**
      * Leiht die ausgewählten Medien aus. Diese Methode wird über einen Listener

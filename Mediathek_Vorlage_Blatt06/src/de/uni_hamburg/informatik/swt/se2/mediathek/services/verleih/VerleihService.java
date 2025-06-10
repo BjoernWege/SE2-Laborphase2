@@ -227,9 +227,9 @@ public interface VerleihService extends ObservableService
      * @ensure (result != null)
      */
     Verleihkarte getVerleihkarteFuer(Medium medium);
-    
+
     // #######################################################################################################
-    
+
     /**
      * Verleiht Medien an einen Kunden. Dabei wird für jedes Medium eine neue
      * Verleihkarte angelegt.
@@ -272,7 +272,7 @@ public interface VerleihService extends ObservableService
      * @ensure result != null
      */
     List<Kunde> getVorgemerkteKunden(Medium medium);
-    
+
     /**
      * Prüft ob das ausgewählte Medium von dem Kunden vorgemerkt ist
      * 

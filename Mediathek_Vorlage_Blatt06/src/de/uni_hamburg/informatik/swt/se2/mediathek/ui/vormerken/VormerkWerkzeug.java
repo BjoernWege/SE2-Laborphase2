@@ -27,7 +27,6 @@ import de.uni_hamburg.informatik.swt.se2.mediathek.ui.subwerkzeuge.vormerkmedien
  */
 public class VormerkWerkzeug
 {
-	
 
     /**
      * Die UI-Komponente der Ausleihe.
@@ -219,7 +218,7 @@ public class VormerkWerkzeug
     {
         List<Medium> medien = _medienAuflisterWerkzeug.getSelectedMedien();
         Kunde kunde = _kundenAuflisterWerkzeug.getSelectedKunde();
-        
+
         // TODO für Aufgabenblatt 6 (nicht löschen): Prüfung muss noch eingebaut
         // werden. Ist dies korrekt implementiert, wird der Vormerk-Button gemäß
         // der Anforderungen a), b), c) und e) aktiviert.
@@ -259,7 +258,8 @@ public class VormerkWerkzeug
         List<Medium> medien = _medienAuflisterWerkzeug.getSelectedMedien();
 
         assert kunde != null : "Vorbedingung verletzt: Kunde darf nicht null sein.";
-        assert !medien.isEmpty() : "Vorbedingung verletzt: Medienliste darf nicht leer sein.";
+        assert !medien
+            .isEmpty() : "Vorbedingung verletzt: Medienliste darf nicht leer sein.";
 
         for (Medium medium : medien)
         {
@@ -273,7 +273,6 @@ public class VormerkWerkzeug
         _medienDetailAnzeigerWerkzeug.setMedien(medien);
         _kundenDetailAnzeigerWerkzeug.setKunde(kunde);
     }
-
 
     /**
      * Zeigt die Details der ausgewählten Medien.

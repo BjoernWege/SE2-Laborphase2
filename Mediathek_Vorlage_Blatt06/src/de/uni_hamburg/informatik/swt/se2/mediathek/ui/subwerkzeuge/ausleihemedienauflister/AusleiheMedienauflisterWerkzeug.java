@@ -96,9 +96,9 @@ public class AusleiheMedienauflisterWerkzeug extends ObservableSubWerkzeug
             // darf, gemäß Anforderung c).
             Kunde ersterVormerker = null;
 
-            
             // Ermittele den ersten Vormerker, falls vorhanden
-            List<Kunde> vorgemerkteKunden = _verleihService.getVorgemerkteKunden(medium);
+            List<Kunde> vorgemerkteKunden = _verleihService
+                .getVorgemerkteKunden(medium);
             if (!vorgemerkteKunden.isEmpty())
             {
                 ersterVormerker = vorgemerkteKunden.get(0);
@@ -108,7 +108,8 @@ public class AusleiheMedienauflisterWerkzeug extends ObservableSubWerkzeug
                     istVerliehen, ersterVormerker));
         }
 
-        _ui.getMedienAuflisterTableModel().setMedien(medienFormatierer);
+        _ui.getMedienAuflisterTableModel()
+            .setMedien(medienFormatierer);
     }
 
     /**
