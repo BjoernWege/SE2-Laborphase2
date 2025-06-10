@@ -71,12 +71,21 @@ public class AusleiheMedienauflisterWerkzeug extends ObservableSubWerkzeug
     }
 
     /**
-     * Holt und setzt die Medieninformationen.
+     * Holt und setzt die Medieninformationen für die Anzeige in der Ausleiheansicht.
+     * 
+     * Dabei wird zu jedem Medium der Verleihstatus sowie ein möglicher erster Vormerker ermittelt.
+     * Ist dies korrekt implementiert, erscheint in der Ausleiheansicht der Name des Vormerkers, 
+     * an den ein Medium ausgeliehen werden darf (Anforderung c)).
+     * 
+     * @ensure _ui.getMedienAuflisterTableModel() enthält aktuelle Medieneinträge mit Verleihstatus und Vormerkerinfo
      */
     private void setzeAnzuzeigendeMedien()
     {
         List<Medium> medienListe = _medienbestand.getMedien();
-        List<AusleiheMedienFormatierer> medienFormatierer = new ArrayList<AusleiheMedienFormatierer>();
+        assert medienListe != null : "Vorbedingung verletzt: medienListe != null";
+
+        List<AusleiheMedienFormatierer> medienFormatierer = new ArrayList<>();
+
         for (Medium medium : medienListe)
         {
             boolean istVerliehen = _verleihService.istVerliehen(medium);
@@ -87,11 +96,19 @@ public class AusleiheMedienauflisterWerkzeug extends ObservableSubWerkzeug
             // darf, gemäß Anforderung c).
             Kunde ersterVormerker = null;
 
+            
+            // Ermittele den ersten Vormerker, falls vorhanden
+            List<Kunde> vorgemerkteKunden = _verleihService.getVorgemerkteKunden(medium);
+            if (!vorgemerkteKunden.isEmpty())
+            {
+                ersterVormerker = vorgemerkteKunden.get(0);
+            }
+
             medienFormatierer.add(new AusleiheMedienFormatierer(medium,
                     istVerliehen, ersterVormerker));
         }
-        _ui.getMedienAuflisterTableModel()
-            .setMedien(medienFormatierer);
+
+        _ui.getMedienAuflisterTableModel().setMedien(medienFormatierer);
     }
 
     /**

@@ -71,30 +71,48 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
     }
 
     /**
-     * Holt und setzt die Medieninformationen.
+     * Holt die Medieninformationen und erstellt Formatierer mit
+     * Entleiher und bis zu drei Vormerkern für die Anzeige.
+     * 
+     * @require _medienbestand != null
+     * @require _verleihService != null
+     * @ensure _ui.getMedienAuflisterTableModel() enthält aktuelle Daten
      */
     private void setzeAnzuzeigendeMedien()
     {
+        assert _medienbestand != null : "Vorbedingung verletzt: _medienbestand != null";
+        assert _verleihService != null : "Vorbedingung verletzt: _verleihService != null";
+
         List<Medium> medienListe = _medienbestand.getMedien();
-        List<VormerkMedienFormatierer> medienFormatierer = new ArrayList<VormerkMedienFormatierer>();
+        List<VormerkMedienFormatierer> medienFormatierer = new ArrayList<>();
+
         for (Medium medium : medienListe)
         {
-            // TODO für Aufgabenblatt 6 (nicht löschen): Die
+        	// TODO für Aufgabenblatt 6 (nicht löschen): Die
             // VormerkMedienFormatierer müssen noch mit einem möglichen
             // Entleiher und möglichen Vormerkern ausgestattet werden.
             // Ist dies korrekt implementiert, erscheinen in der Vormerkansicht
             // die Namen des Entleihers und der möglichen 3 Vormerker.
-            Kunde entleiher = null;
-            Kunde vormerker1 = null;
-            Kunde vormerker2 = null;
-            Kunde vormerker3 = null;
+        	
+            // Ermittle Entleiher, falls vorhanden
+            Kunde entleiher = _verleihService.istVerliehen(medium)
+                    ? _verleihService.getEntleiherFuer(medium)
+                    : null;
 
-            medienFormatierer.add(new VormerkMedienFormatierer(medium,
-                    entleiher, vormerker1, vormerker2, vormerker3));
+            // Ermittle bis zu 3 Vormerker
+            List<Kunde> vorgemerkteKunden = _verleihService.getVorgemerkteKunden(medium);
+            Kunde vormerker1 = vorgemerkteKunden.size() > 0 ? vorgemerkteKunden.get(0) : null;
+            Kunde vormerker2 = vorgemerkteKunden.size() > 1 ? vorgemerkteKunden.get(1) : null;
+            Kunde vormerker3 = vorgemerkteKunden.size() > 2 ? vorgemerkteKunden.get(2) : null;
+
+            // Formatierer-Objekt erzeugen
+            medienFormatierer.add(new VormerkMedienFormatierer(
+                    medium, entleiher, vormerker1, vormerker2, vormerker3));
         }
-        _ui.getMedienAuflisterTableModel()
-            .setMedien(medienFormatierer);
+
+        _ui.getMedienAuflisterTableModel().setMedien(medienFormatierer);
     }
+
 
     /**
      * Registiert die Aktion, die ausgeführt wird, wenn ein Medium ausgewählt
