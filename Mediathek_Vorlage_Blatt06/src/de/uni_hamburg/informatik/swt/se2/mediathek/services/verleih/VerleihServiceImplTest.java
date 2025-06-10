@@ -5,8 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedList;
 
 import org.junit.Test;
 
@@ -32,7 +34,10 @@ public class VerleihServiceImplTest
     private VerleihService _service;
     private List<Medium> _medienListe;
     private Kunde _vormerkkunde;
-
+	private Kunde _vormerkkunde1;
+	private Kunde _vormerkkunde2;
+	private Kunde _vormerkkunde3;
+	
     public VerleihServiceImplTest()
     {
         _datum = new Datum(3, 4, 2009);
@@ -41,6 +46,9 @@ public class VerleihServiceImplTest
         _kunde = new Kunde(new Kundennummer(123456), "ich", "du");
 
         _vormerkkunde = new Kunde(new Kundennummer(666999), "paul", "panter");
+		_vormerkkunde1 = new Kunde(new Kundennummer(666999), "paul", "mccartney");
+		_vormerkkunde2 = new Kunde(new Kundennummer(666999), "paul", "langsdorf");
+		_vormerkkunde3 = new Kunde(new Kundennummer(666999), "paul", "burchert");
 
         kundenstamm.fuegeKundenEin(_kunde);
         kundenstamm.fuegeKundenEin(_vormerkkunde);
@@ -148,6 +156,32 @@ public class VerleihServiceImplTest
         _service.verleiheAn(_kunde,
                 Collections.singletonList(_medienListe.get(2)), _datum);
         assertFalse(ereignisse[0]);
+    }
+    
+    @Test
+    public void testVormerken()
+    {
+        // TODO Auto-generated method stub
+        
+        //Zuerst lässt sich jemand Vormerken
+        Medium m1 = _medienListe.get(0);
+        
+		_service.merkeVor(_kunde, m1);
+		// nachbedingung
+		assertTrue(_service.istSchonVorgemerkt(_kunde,m1));
+		
+		// dann noch 2:
+		_service.merkeVor(_vormerkkunde, m1);
+		_service.merkeVor(_vormerkkunde1, m1);
+		
+		// nur der erste darf noch das medium ausleihen
+		assertTrue(_service.istVerleihenMoeglich(_kunde, Arrays.asList(new Medium[]{m1})));
+		assertFalse(_service.istVerleihenMoeglich(_vormerkkunde, Arrays.asList(new Medium[]{m1})));
+		assertFalse(_service.istVerleihenMoeglich(_vormerkkunde1, Arrays.asList(new Medium[]{m1})));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde2, Arrays.asList(new Medium[]{m1})));
+        
+        // es ist nicht möglich, dann noch eine Vormerkung zu machen
+		assertFalse(_service.istVormerkenMoeglich(_vormerkkunde2, m1));
     }
 
 }

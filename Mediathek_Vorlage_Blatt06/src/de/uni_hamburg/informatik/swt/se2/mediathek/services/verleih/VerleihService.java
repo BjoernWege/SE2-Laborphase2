@@ -227,5 +227,65 @@ public interface VerleihService extends ObservableService
      * @ensure (result != null)
      */
     Verleihkarte getVerleihkarteFuer(Medium medium);
+    
+    // #######################################################################################################
+    
+    /**
+     * Verleiht Medien an einen Kunden. Dabei wird für jedes Medium eine neue
+     * Verleihkarte angelegt.
+     * 
+     * @param kunde Ein Kunde, für den ein Medium vorgemerkt werden soll
+     * @param medien Die Medien, die vorgemerkt werden sollen
+     * 
+     * 
+     * @require kundeImBestand(kunde)
+     * @require istVormerkenMoeglich(medium)
+     * 
+     * @ensure istSchonVorgemerkt(kunde, medium)
+     */ //TODO wissen, was diese Methode nachbedingt/zusichert
+    void merkeVor(Kunde kunde, Medium medium);
+
+    /**
+     * Prüft ob das ausgewählte Medium für den Kunden vormerkbar ist
+     * 
+     * @param kunde Der Kunde für den geprüft werden soll
+     * @param medium Das Medium
+     * 
+     * 
+     * @return true, wenn das vormerken für diesen Kunden möglich ist, sonst
+     *         false
+     * 
+     * @require kundeImBestand(kunde)
+     * @require medienImBestand(medien)
+     */
+    boolean istVormerkenMoeglich(Kunde kunde, Medium medium);
+
+    /**
+     * Liefert die Vorgemerkten Kunden des angegebenen Mediums.
+     * 
+     * @param medium Das Medium.
+     * 
+     * @return die Vorgemerkten Kunden des angegebenen Mediums.
+     * 
+     * @require istVerliehen(medium)
+     * 
+     * @ensure result != null
+     */
+    List<Kunde> getVorgemerkteKunden(Medium medium);
+    
+    /**
+     * Prüft ob das ausgewählte Medium von dem Kunden vorgemerkt ist
+     * 
+     * @param kunde Der Kunde für den geprüft werden soll
+     * @param medium Das Medium
+     * 
+     * 
+     * @return true, wenn das Medium von diesem Kunden vorgemerkt ist, sonst
+     *         false
+     * 
+     * @require kundeImBestand(kunde)
+     * @require medienImBestand(medien)
+     */
+    boolean istSchonVorgemerkt(Kunde kunde, Medium medium);
 
 }
