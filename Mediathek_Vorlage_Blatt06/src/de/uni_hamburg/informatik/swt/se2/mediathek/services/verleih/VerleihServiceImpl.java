@@ -227,10 +227,14 @@ public class VerleihServiceImpl extends AbstractObservableService
 
             _verleihkarten.put(medium, verleihkarte);
             Vormerkung v = _vormerkungen.get(medium);
-            if (!(v == null || v.getListeVonKunden()
-                .isEmpty()))
+            if (v != null)
             {
                 v.erstenKundenEntfernen();
+                if (v.getListeVonKunden()
+                    .isEmpty())
+                {
+                    v = null;
+                }
             }
 
             _protokollierer.protokolliere(

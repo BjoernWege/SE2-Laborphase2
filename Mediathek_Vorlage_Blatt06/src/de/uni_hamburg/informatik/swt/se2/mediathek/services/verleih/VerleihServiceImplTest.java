@@ -219,9 +219,6 @@ public class VerleihServiceImplTest
         assertFalse(_service.istVerleihenMoeglich(_vormerkkunde1, m1l));
         assertFalse(_service.istVerleihenMoeglich(_vormerkkunde2, m1l));
 
-        Medium m2 = _medienListe.get(1);
-        List<Medium> m2l = Arrays.asList(new Medium[] {m2});
-
     }
 
 }
