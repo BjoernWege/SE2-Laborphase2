@@ -37,7 +37,9 @@ public class Vormerkung
      * Erstellt eine Vormerkung auf Medium mit Kunden.
      * @param medium das Medium zur Vormerkung
      * @param kunden Eine vordefinierte Liste von Vorgemerkten Kunden 
-     * @ensure medium != null
+     * @require kunden != null
+     * @require medium != null
+     * @require !kunden.isEmpty()
      */
     public Vormerkung(LinkedList<Kunde> kunden, Medium medium)
     {
