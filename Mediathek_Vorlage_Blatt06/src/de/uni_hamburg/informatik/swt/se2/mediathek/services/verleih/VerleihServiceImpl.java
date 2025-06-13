@@ -349,6 +349,7 @@ public class VerleihServiceImpl extends AbstractObservableService
 
         _vormerkungen.put(medium, vormerkung);
 
+        informiereUeberAenderung();
     }
 
     /**
