@@ -54,6 +54,9 @@ public class VerleihServiceImplTest
 
         kundenstamm.fuegeKundenEin(_kunde);
         kundenstamm.fuegeKundenEin(_vormerkkunde);
+        kundenstamm.fuegeKundenEin(_vormerkkunde1);
+        kundenstamm.fuegeKundenEin(_vormerkkunde2);
+        kundenstamm.fuegeKundenEin(_vormerkkunde3);
         MedienbestandService medienbestand = new MedienbestandServiceImpl(
                 new ArrayList<Medium>());
         Medium medium = new CD("CD1", "baz", "foo", 123);
@@ -161,33 +164,61 @@ public class VerleihServiceImplTest
     }
 
     @Test
-    public void testVormerken()
+    public void testVormerken() throws Exception
     {
-        // TODO Auto-generated method stub
+        Medium m1 = _medienListe.get(0);
+        List<Medium> m1l = Arrays.asList(new Medium[] {m1});
 
         //Zuerst lässt sich jemand Vormerken
-        Medium m1 = _medienListe.get(0);
-
         _service.merkeVor(_kunde, m1);
-        // nachbedingung
-        assertTrue(_service.istSchonVorgemerkt(_kunde, m1));
+        assertTrue(
+                "nachbedingung von merkeVor: istSchonVorgemerkt(kunde, medium)",
+                _service.istSchonVorgemerkt(_kunde, m1));
 
-        // dann noch 2:
+        // es ist nicht möglich, zweimal den gleichen Kunden vorzumerken (a: unterschiedlich)
+        assertFalse(_service.istVormerkenMoeglich(_kunde, m1));
+
+        // dann lassen sich noch 2 Kunden Vormerken
         _service.merkeVor(_vormerkkunde, m1);
         _service.merkeVor(_vormerkkunde1, m1);
 
-        // nur der erste darf noch das medium ausleihen
-        assertTrue(_service.istVerleihenMoeglich(_kunde,
-                Arrays.asList(new Medium[] {m1})));
-        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde,
-                Arrays.asList(new Medium[] {m1})));
-        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde1,
-                Arrays.asList(new Medium[] {m1})));
-        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde2,
-                Arrays.asList(new Medium[] {m1})));
+        // nur der erste darf noch das medium ausleihen (c)
+        assertTrue(_service.istVerleihenMoeglich(_kunde, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde1, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde2, m1l));
 
-        // es ist nicht möglich, dann noch eine Vormerkung zu machen
+        // es ist nicht möglich, dann noch eine Vormerkung zu machen (a)
         assertFalse(_service.istVormerkenMoeglich(_vormerkkunde2, m1));
+
+        // wird ein Vorgemerktes Medium Ausgeliehen, wird der Kunde,
+        // der das tut, aus der Vormerkung entfernt: (d)
+
+        // er leiht m1 aus:
+        _service.verleiheAn(_kunde, m1l, new Datum(24, 12, 2024)); // throws Exception
+
+        // dann rückt _vormerkkunde nach, aber es ist nicht Möglich, zu leihen, weil _kunde das Medium hat
+        assertFalse(_service.istVerleihenMoeglich(_kunde, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde, m1l));
+
+        // der _kunde ist nicht mehr enthalten 
+        assertFalse(_service.getVorgemerkteKunden(m1)
+            .contains(_kunde));
+
+        // es ist unabhängig von Verleihstatus möglich, Vorzumerken (b)
+        assertTrue(_service.istVormerkenMoeglich(_vormerkkunde2, m1));
+        // außer man ist der Ausleiher (e)
+        assertFalse(_service.istVormerkenMoeglich(_kunde, m1));
+
+        // der _kunde gibt m1 zurück
+        _service.nimmZurueck(m1l, new Datum(31, 12, 2024));
+
+        // jetzt darf nur _vormerkkunde das Medium ausleihen
+        assertFalse(_service.istVerleihenMoeglich(_kunde, m1l));
+        assertTrue(_service.istVerleihenMoeglich(_vormerkkunde, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde1, m1l));
+        assertFalse(_service.istVerleihenMoeglich(_vormerkkunde2, m1l));
+
     }
 
 }

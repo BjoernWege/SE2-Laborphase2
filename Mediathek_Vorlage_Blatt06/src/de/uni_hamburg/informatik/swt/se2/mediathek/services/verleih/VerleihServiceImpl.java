@@ -114,7 +114,16 @@ public class VerleihServiceImpl extends AbstractObservableService
         assert medienImBestand(
                 medien) : "Vorbedingung verletzt: medienImBestand(medien)";
 
-        return sindAlleNichtVerliehen(medien);
+        return medien.stream()
+            .allMatch(medium -> istVerleihenMoeglich(kunde, medium));
+    }
+
+    private boolean istVerleihenMoeglich(Kunde kunde, Medium medium)
+    {
+        Vormerkung v = _vormerkungen.get(medium);
+        return !istVerliehen(medium) && (v == null || v.getListeVonKunden()
+            .isEmpty() || v.getErsterKunde()
+                .equals(kunde));
     }
 
     @Override
@@ -217,6 +226,17 @@ public class VerleihServiceImpl extends AbstractObservableService
                     ausleihDatum);
 
             _verleihkarten.put(medium, verleihkarte);
+            Vormerkung v = _vormerkungen.get(medium);
+            if (v != null)
+            {
+                v.erstenKundenEntfernen();
+                if (v.getListeVonKunden()
+                    .isEmpty())
+                {
+                    v = null;
+                }
+            }
+
             _protokollierer.protokolliere(
                     VerleihProtokollierer.EREIGNIS_AUSLEIHE, verleihkarte);
         }
@@ -308,7 +328,6 @@ public class VerleihServiceImpl extends AbstractObservableService
 
     // #############################################################
 
-    // yay! automatisch generierte Methoden!!!
     @Override
     public void merkeVor(Kunde kunde, Medium medium)
     {
@@ -323,7 +342,10 @@ public class VerleihServiceImpl extends AbstractObservableService
         {
             vormerkung = new Vormerkung(kunde, medium);
         }
-        vormerkung.kundeHinzufuegen(kunde);
+        else
+        {
+            vormerkung.kundeHinzufuegen(kunde);
+        }
 
         _vormerkungen.put(medium, vormerkung);
 
