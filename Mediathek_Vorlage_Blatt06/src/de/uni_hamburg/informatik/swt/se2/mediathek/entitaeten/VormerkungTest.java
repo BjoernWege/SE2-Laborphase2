@@ -146,6 +146,10 @@ public class VormerkungTest
     @Test
     public void testErstenKundenEntfernen()
     {
+        v1.erstenKundenEntfernen();
+        assertTrue(v1.getListeVonKunden()
+            .isEmpty());
+
         v1.kundeHinzufuegen(k1);
         v1.kundeHinzufuegen(k2);
 
@@ -165,7 +169,6 @@ public class VormerkungTest
     @Test
     public void testGetListeVonKundenGibtKopieZurueck()
     {
-        v1.kundeHinzufuegen(k1);
         List<Kunde> kopie = v1.getListeVonKunden();
         kopie.clear();
         assertTrue(v1.containsKunde(k1));
@@ -179,8 +182,6 @@ public class VormerkungTest
     @Test
     public void testErstenKundenEntfernenAufLeer()
     {
-        v1.kundeHinzufuegen(k1);
-
         v1.erstenKundenEntfernen();
         assertEquals(v1.getListeVonKunden()
             .size(), 0);
